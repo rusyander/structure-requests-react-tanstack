@@ -1,16 +1,62 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetTodos } from "./getTodos";
+import { TodosProps, useGetTodos } from "./getTodos";
 import { usePostTodosMutation } from "./postTodos";
+import { useDeleteTodosMutation } from "./deleteTodos";
+import { useUpdateTodosMutation } from "./updateTodos";
+
+const TodosList: React.FC<TodosProps> = ({
+  checked,
+  description,
+  id,
+  title,
+}) => {
+  const [isSelected, setIsSelected] = React.useState(checked);
+  const deleteTodosMutation = useDeleteTodosMutation();
+
+  const deleteTodos = () => {
+    deleteTodosMutation.mutate({
+      params: {
+        id,
+      },
+    });
+  };
+  const updateTodosMutation = useUpdateTodosMutation();
+
+  const updateTodos = () => {
+    updateTodosMutation.mutate({
+      params: { id, title, description, checked: isSelected },
+    });
+  };
+
+  const handleSelect = () => {
+    setIsSelected(checked === true ? false : true);
+
+    // updateTodos();
+  };
+
+  useEffect(() => {
+    console.log("work useEffect");
+
+    updateTodos();
+  }, [isSelected]);
+
+  return (
+    <li className="flex">
+      {String(isSelected)}
+      <h2>{title}</h2>
+      <h3>{id}</h3>
+      <p>{description}</p>
+      <input type="checkbox" checked={isSelected} onChange={handleSelect} />
+      <button onClick={deleteTodos}>delete</button>
+    </li>
+  );
+};
 
 const GetTodosComp = () => {
   const queryClient = useQueryClient();
-
-  let getTodosQuery = useGetTodos();
-  //   console.log(getTodosQuery);
-
+  const getTodosQuery = useGetTodos();
   const todos = getTodosQuery.data?.data;
-
   console.log(todos);
 
   return (
@@ -22,21 +68,12 @@ const GetTodosComp = () => {
       >
         getTodos
       </button>
-      <ul>
-        {todos?.map((todo) => (
-          <li key={todo.id}>
-            <h2>{todo.title}</h2>
-            <p>{todo.description}</p>
-            <input type="checkbox" checked={todo.checked} />
-          </li>
-        ))}
-      </ul>
+      <ul>{todos?.map((todo) => <TodosList key={todo.id} {...todo} />)}</ul>
     </>
   );
 };
 
 const PostTodosComp = () => {
-  const queryClient = useQueryClient();
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
 
@@ -45,16 +82,7 @@ const PostTodosComp = () => {
   const submit = async () => {
     if (!title || !description)
       return console.log("title or description is empty");
-    // postTodosMutation.mutate({
-    //   params: {
-    //     title,
-    //     description,
-    //     checked: false,
-    //     id: Math.random(),
-    //   },
-    // });
-
-    await postTodosMutation.mutateAsync({
+    postTodosMutation.mutate({
       params: {
         title,
         description,
@@ -62,15 +90,12 @@ const PostTodosComp = () => {
         id: Math.random(),
       },
     });
-    console.log("postTodosMutation", postTodosMutation);
-    postTodosMutation.isSuccess &&
-      queryClient.fetchQuery({ queryKey: ["getTodos"] });
 
-    // queryClient.invalidateQueries("getTodos");
+    // console.log("postTodosMutation", postTodosMutation);
   };
 
   return (
-    <div>
+    <div className="flex">
       <input
         type="text"
         value={title}
@@ -88,10 +113,10 @@ const PostTodosComp = () => {
 
 export default function Index() {
   return (
-    <div>
+    <>
       <h1>Todos</h1>
       <PostTodosComp />
       <GetTodosComp />
-    </div>
+    </>
   );
 }

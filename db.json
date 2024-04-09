@@ -1,33 +1,28 @@
 {
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
   "todos": [
     {
-      "checked": true,
+      "id": 6,
       "title": "title6",
       "description": "desc6",
-      "id": 6
-    },
-    {
-      "id": 0.5058660452106511,
-      "title": "1",
-      "description": "1",
-      "checked": false
+      "checked": true
     },
     {
       "id": 0.19499048848154277,
       "title": "1",
       "description": "1",
-      "checked": false
+      "checked": true
     },
     {
-      "id": 0.4833332625270441,
-      "title": "1",
-      "description": "1",
-      "checked": false
-    },
-    {
-      "id": 0.009529613556151784,
-      "title": "2",
-      "description": "2",
+      "id": 0.4109820596187579,
+      "title": "12",
+      "description": "12",
       "checked": false
     }
   ],

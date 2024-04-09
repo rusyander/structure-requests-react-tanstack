@@ -1,11 +1,18 @@
 import React from "react";
 
-import "./App.css";
-
 // import * as axios from "./api/axios/requests";
 // import * as fetch from "./api/fetch/requests";
 // import * as ky from "./api/ky/requests";
 import Index from "./tanstackQuery";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const ReactQueryDevtoolsProduction = React.lazy(() =>
+  import("@tanstack/react-query-devtools/build/modern/production.js").then(
+    (d) => ({
+      default: d.ReactQueryDevtools,
+    })
+  )
+);
 
 function App() {
   // const [users, setUsers] = React.useState<User[]>([]);
@@ -15,6 +22,13 @@ function App() {
   // React.useEffect(() => {
   //   setLoading(false);
   // }, [users.length]);
+
+  const [showDevtools, setShowDevtools] = React.useState(false);
+
+  React.useEffect(() => {
+    // @ts-expect-error
+    window.toggleDevtools = () => setShowDevtools((old) => !old);
+  }, []);
 
   return (
     <>
@@ -35,10 +49,15 @@ function App() {
 
           setUsers(axiosGetUsersResponse.data);
         }}
-      >
         get users
       </button> */}
       <Index />
+      <ReactQueryDevtools initialIsOpen />
+      {showDevtools && (
+        <React.Suspense fallback={null}>
+          <ReactQueryDevtoolsProduction />
+        </React.Suspense>
+      )}
     </>
   );
 }

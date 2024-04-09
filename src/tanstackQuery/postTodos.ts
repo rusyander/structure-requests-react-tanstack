@@ -1,6 +1,6 @@
 import { api } from "@/api/axios/instance";
 import { MutationSettings, RequestConfig } from "./api";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface TodosProps {
   id: number;
@@ -9,17 +9,22 @@ export interface TodosProps {
   checked: boolean;
 }
 
-export type PostTodosRequestConfig = RequestConfig<TodosProps>;
+type PostTodosRequestConfig = RequestConfig<TodosProps>;
 
 const postTodos = ({ params, config }: PostTodosRequestConfig) =>
   api.post<TodosProps>("todos", params, config);
 
 export const usePostTodosMutation = (
   settings?: MutationSettings<PostTodosRequestConfig, typeof postTodos>
-) =>
-  useMutation({
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationKey: ["postTodos"],
     mutationFn: ({ params, config }) =>
       postTodos({ params, config: { ...settings?.config, ...config } }),
     ...settings?.options,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getTodos"] });
+    },
   });
+};
