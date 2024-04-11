@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutationState, useQueryClient } from "@tanstack/react-query";
 import { TodosProps, useGetTodos } from "./getTodos";
 import { usePostTodosMutation } from "./postTodos";
 import { useDeleteTodosMutation } from "./deleteTodos";
@@ -77,6 +77,15 @@ const PostTodosComp = () => {
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
 
+  const mutationKey = ["postTodos"];
+  // queryClient.invalidateQueries({ queryKey: ["postTodos"] });
+  // queryClient.setMutationDefaults({ mutationKey: ["postTodos"], options: { pa }})
+  const data = useMutationState({
+    // this mutation key needs to match the mutation key of the given mutation (see above)
+    filters: { mutationKey },
+    select: (mutation) => mutation.state.data,
+  });
+
   const postTodosMutation = usePostTodosMutation();
 
   const submit = async () => {
@@ -94,6 +103,10 @@ const PostTodosComp = () => {
     // console.log("postTodosMutation", postTodosMutation);
   };
 
+  const autoCreate = () => {
+    console.log("data", data);
+  };
+
   return (
     <div className="flex">
       <input
@@ -107,6 +120,7 @@ const PostTodosComp = () => {
         onChange={(e) => setDescription(e.target.value)}
       />
       <button onClick={submit}>submit</button>
+      <button onClick={autoCreate}>auto create</button>
     </div>
   );
 };
